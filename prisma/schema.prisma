@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
+}
+
+model Example {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model User {
+    id               String    @id @default(cuid())
+    name             String
+    email            String    @unique
+    emailVerified    DateTime?
+    phone            String    @unique
+    phoneVerified    DateTime?
+    dateOfBirth      DateTime?
+    image            String    @default("/default.jpg")
+    gender           String?
+    address          String?
+    pincode          String?
+    country          String?
+    completedProfile Boolean   @default(false)
+
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+    OneTimeToken   OneTimeToken[]
+    ConnectedApps  ConnectedApps[]
+    RegisteredApps RegisteredApps[]
+    LoginRequest   LoginRequest[]
+}
+
+model OneTimeToken {
+    id        String   @id @default(cuid())
+    user      User?    @relation(fields: [userId], references: [id])
+    userId    String?
+    email     String?
+    phone     String?
+    otp       String
+    expiresAt DateTime
+
+    @@index([userId])
+}
+
+model RegisteredApps {
+    id                String              @id @default(cuid())
+    clientId          String              @unique
+    name              String
+    logo              String?
+    homePageUrl       String
+    privacyPolicyUrl  String
+    termsOfServiceUrl String
+    developerId       String
+    developer         User                @relation(fields: [developerId], references: [id])
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    AuthorizedDomains AuthorizedDomains[]
+    ConnectedApps     ConnectedApps[]
+    LoginRequest      LoginRequest[]
+
+    @@index([developerId])
+}
+
+model AuthorizedDomains {
+    id     String          @id @default(cuid())
+    domain String
+    app    RegisteredApps? @relation(fields: [appId], references: [id])
+    appId  String?
+
+    @@index([appId])
+}
+
+model AuthorizationTokens {
+    id              String         @id @default(cuid())
+    token           String         @unique
+    createdAt       DateTime       @default(now())
+    ConnectedApps   ConnectedApps? @relation(fields: [connectedAppsId], references: [id])
+    connectedAppsId String?
+
+    @@index([connectedAppsId])
+}
+
+model AccessTokens {
+    id              String         @id @default(cuid())
+    token           String         @unique
+    createdAt       DateTime       @default(now())
+    ConnectedApps   ConnectedApps? @relation(fields: [connectedAppsId], references: [id])
+    connectedAppsId String?
+
+    @@index([connectedAppsId])
+}
+
+model RefreshTokens {
+    id              String         @id @default(cuid())
+    token           String         @unique
+    createdAt       DateTime       @default(now())
+    ConnectedApps   ConnectedApps? @relation(fields: [connectedAppsId], references: [id])
+    connectedAppsId String?
+
+    @@index([connectedAppsId])
+}
+
+model ConnectedApps {
+    id                  String                @id @default(cuid())
+    user                User?                 @relation(fields: [userId], references: [id])
+    userId              String?
+    app                 RegisteredApps?       @relation(fields: [appId], references: [id])
+    appId               String?
+    scope               String
+    requests            Requests[]
+    AuthorizationTokens AuthorizationTokens[]
+    createdAt           DateTime              @default(now())
+    updatedAt           DateTime              @updatedAt
+    AccessTokens        AccessTokens[]
+    RefreshTokens       RefreshTokens[]
+
+    @@index([userId])
+    @@index([appId])
+}
+
+model Requests {
+    id              String         @id @default(cuid())
+    createdAt       DateTime       @default(now())
+    updatedAt       DateTime       @updatedAt
+    request         String
+    response        String
+    ConnectedApps   ConnectedApps? @relation(fields: [connectedAppsId], references: [id])
+    connectedAppsId String?
+
+    @@index([connectedAppsId])
+}
+
+model LoginRequest {
+    id             String          @id @default(cuid())
+    regAppsId      String
+    RegisteredApps RegisteredApps? @relation(fields: [regAppsId], references: [id])
+    scope          String
+    state          String
+    redirectUri    String
+    responseType   String
+    userId         String
+    user           User?           @relation(fields: [userId], references: [id])
+    consent        Boolean         @default(false)
+
+    createdAt DateTime @default(now())
+
+    @@index([regAppsId])
+    @@index([userId])
+}
