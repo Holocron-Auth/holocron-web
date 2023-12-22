@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { nanoid, random } from "nanoid";
+import { nanoid } from "nanoid";
 import { env } from "process";
 import {
   createTRPCRouter,
@@ -12,7 +12,17 @@ import {
 } from "src/utils/validation/dev";
 
 function appKey() {
-  return random(10);
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  let length = 12;
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+
+  return result;
 }
 
 export const devRouter = createTRPCRouter({
