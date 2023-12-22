@@ -1,9 +1,9 @@
 import { type NextPage } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useCallback } from "react";
 import Layout from "src/client/layout";
 import { useUserContext } from "src/context/user.context";
-import { useCallback } from "react";
 
 import { api } from "src/utils/api";
 
@@ -110,6 +110,9 @@ const DevPage: NextPage = () => {
                 </div>
                 <p>
                   <span className="font-bold">Client Id:</span> {app.clientId}
+                </p>
+                <p>
+                  <span className="font-bold">Client Secret:</span> {app.key}
                 </p>
                 <div>
                   <p>

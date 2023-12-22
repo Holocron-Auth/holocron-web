@@ -1,19 +1,19 @@
+import { TRPCError } from "@trpc/server";
+import { nanoid, random } from "nanoid";
+import { env } from "process";
 import {
   createTRPCRouter,
   highFeatureProcedure,
   protectedProcedure,
 } from "src/server/api/trpc";
-import { serialize } from "cookie";
 import {
   deleteRegisterApp,
-  registerApp,
   registerAppDatabase,
-  registerAppEdit,
 } from "src/utils/validation/dev";
-import { nanoid } from "nanoid";
-import { env } from "process";
-import { TRPCError } from "@trpc/server";
-import { TypeOf } from "zod";
+
+function appKey() {
+  return random(10);
+}
 
 export const devRouter = createTRPCRouter({
   registerApp: highFeatureProcedure
@@ -116,6 +116,7 @@ export const devRouter = createTRPCRouter({
       newApp.authorizedDomains = authorizedDomains
         .filter((domain) => domain.appId === app.id)
         .map((domain) => domain.domain);
+      newApp.key = appKey();
       newApps.push(newApp);
     });
 
